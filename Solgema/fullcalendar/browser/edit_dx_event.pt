@@ -8,40 +8,63 @@
 <metal:block fill-slot="javascript_head_slot">
 <script type="text/javascript" tal:content="string: sf_goto_date='${view/isodate}'"></script>
 <script type="text/javascript" tal:condition="python: not request.form.get('calendar_event_saved', None)">
-  jq(document).ready( function() {
-    jq("iframe[name='SFEventEditIFRAME']", window.parent.document).height( jq('#content').height()+30 );
-    var $dialogContent = window.parent.jq('#event_edit_container');
-    jq("#form-buttons-cancel").unbind('click').click(function () {
-        window.parent.jq('a.ui-dialog-titlebar-close').unbind('click').click(function (event){
+(function ($) {
+  $(document).ready( function() {
+    $("iframe[name='SFEventEditIFRAME']", window.parent.document).height( $('#content').height()+30 );
+    var $dialogContent = window.parent.$('#event_edit_container');
+    $("#form-buttons-cancel").unbind('click').click(function () {
+        window.parent.$('a.ui-dialog-titlebar-close').unbind('click').click(function (event){
           $dialogContent.dialog('close');
         });
-        window.parent.jq('a.ui-dialog-titlebar-close').click();
+        window.parent.$('a.ui-dialog-titlebar-close').click();
         return false;
     });
-    jq('ul.formTabs a').click(function(event){
-      jq("iframe[name='SFEventEditIFRAME']", window.parent.document).height( jq("html").height()+30 );
+    $('ul.formTabs a').click(function(event){
+      $("iframe[name='SFEventEditIFRAME']", window.parent.document).height( $("html").height()+30 );
     });
-    jq('select.formTabs').change(function(event){
-      jq("iframe[name='SFEventEditIFRAME']", window.parent.document).height( jq("html").height()+30 );
+    $('select.formTabs').change(function(event){
+      $("iframe[name='SFEventEditIFRAME']", window.parent.document).height( $("html").height()+30 );
     });
   });
+}(jQuery));
 </script>
 <script tal:condition="python: request.form.get('calendar_event_saved', None)" type="text/javascript">
-  jq(document).ready( function() {
+(function ($) {
+  $(document).ready( function() {
     if (window.parent !== window) {
-      window.parent.jq('#calendar').empty().fullCalendar(window.parent.calendarOptions()); 
+      window.parent.$('#calendar').empty().fullCalendar(window.parent.calendarOptions()); 
       if (window.sf_goto_date) {
         var dt = new Date(window.sf_goto_date);
         var year = 1900 + dt.getYear();
         var month = dt.getMonth();
         var day = dt.getDate();
-        window.parent.jq('#calendar').fullCalendar('gotoDate', year, month, day);
+        window.parent.$('#calendar').fullCalendar('gotoDate', year, month, day);
       }
-      var dialogContent = window.parent.jq('#event_edit_container');
+      var dialogContent = window.parent.$('#event_edit_container');
       dialogContent.dialog('close');
     }
   });
+}(jQuery));
 </script>
+<script type="text/javascript">
+(function ($) {
+  $(document).ready(function () {
+    // optional support for plone.app.widgets, scan iframe document:
+    if (require && require.defined('pat-registry')) {
+      require('pat-registry').scan(document);
+    }
+  });
+}(jQuery));
+</script>
+</metal:block>
+<metal:block fill-slot="style_slot">
+<style>
+.template-sfajax_base_edit #portal-column-content {
+  width: 100% !important;
+  margin-left: 0px;
+  left: 0;
+}
+</style>
 </metal:block>
 
 </head>

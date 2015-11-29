@@ -8,35 +8,46 @@
 <metal:block fill-slot="javascript_head_slot">
 <script type="text/javascript" tal:content="string: sf_goto_date='${view/isodate}'"></script>
 <script type="text/javascript" tal:condition="python: not request.form.get('calendar_event_saved', None)">
-  jq(document).ready( function() {
+(function ($) {
+  $(document).ready( function() {
     /* workaround for https://dev.plone.org/ticket/13134 */
-    var content_div = jq('div#portal-column-content');  // only in tableless div, not td
+    var content_div = $('div#portal-column-content');  // only in tableless div, not td
     if (content_div) {
         content_div.removeClass(); // incorrect deco.gs grid class names for width/pos
         content_div.addClass('cell width-full position-0');
     }
-    jq('#form-buttons-save').unbind('click');
-    jq("iframe[name='SFEventEditIFRAME']", window.parent.document).height( jq('#portal-column-content').height()+30 );
-    var $dialogContent = window.parent.jq('#event_edit_container');
-    jq("#form-buttons-cancel").unbind('click').click(function () {
-        window.parent.jq('a.ui-dialog-titlebar-close').unbind('click').click(function (event){
+    $('#form-buttons-save').unbind('click');
+    $("iframe[name='SFEventEditIFRAME']", window.parent.document).height( $('#portal-column-content').height()+30 );
+    var $dialogContent = window.parent.$('#event_edit_container');
+    $("#form-buttons-cancel").unbind('click').click(function () {
+        window.parent.$('a.ui-dialog-titlebar-close').unbind('click').click(function (event){
           $dialogContent.dialog('close');
         });
-        window.parent.jq('a.ui-dialog-titlebar-close').click();
+        window.parent.$('a.ui-dialog-titlebar-close').click();
         return false;
     });
-    jq('ul.formTabs').remove(); ploneFormTabbing.initialize(); // workaround for https://dev.plone.org/ticket/13137
-    jq('ul.formTabs a').click(function(event){
-      jq("iframe[name='SFEventEditIFRAME']", window.parent.document).height( jq("html").height()+30 );
+    if (window.ploneFormTabbing) {
+      // workaround for https://dev.plone.org/ticket/13137 -- this may not be
+      // applicable when using plone.app.widgets with Plone 4.x, per 
+      // https://github.com/plone/plone.app.widgets/issues/104
+      $('ul.formTabs').remove(); ploneFormTabbing.initialize();
+    }
+    $('ul.formTabs a').click(function(event){
+      $("iframe[name='SFEventEditIFRAME']", window.parent.document).height( $("html").height()+30 );
     });
-    jq('select.formTabs').change(function(event){
-      jq("iframe[name='SFEventEditIFRAME']", window.parent.document).height( jq("html").height()+30 );
+    $('select.formTabs').change(function(event){
+      $("iframe[name='SFEventEditIFRAME']", window.parent.document).height( $("html").height()+30 );
     });
     if (window.sf_goto_date) {
         /* preserve context of date visible on calendar after form submit */
-        jq('<input type="hidden" name="date_context" value="'+sf_goto_date+'" />').appendTo(jq('#form'));
+        $('<input type="hidden" name="date_context" value="'+sf_goto_date+'" />').appendTo($('#form'));
+    }
+    // optional support for plone.app.widgets, scan iframe document:
+    if (require && require.defined('pat-registry')) {
+      require('pat-registry').scan(document);
     }
   });
+}(jQuery));
 </script>
 <script tal:condition="python: request.form.get('calendar_event_saved', None)" type="text/javascript">
   jq(document).ready( function() {
